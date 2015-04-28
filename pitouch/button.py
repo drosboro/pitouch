@@ -4,10 +4,15 @@ from pygame.locals import *
 from . import colors
 
 class Button:
-  def __init__(self, rect=(0,0,0,30), text="", fontpath=None, fontsize=20, bg_color=colors.BLACK, text_color=colors.WHITE, stroke_color=colors.WHITE):
+  def __init__(self, rect=(0,0,0,30), text="", fontpath=None, fontsize=20, bg_color=colors.BLACK, text_color=colors.WHITE, stroke_color=colors.WHITE, surface=None):
     self._rect = pygame.Rect(rect)
     self._text = text
-    self._surface = pygame.display.get_surface()
+    
+    if surface:
+      self._surface = surface
+    else:
+      self._surface = pygame.display.get_surface()
+
     self._pressed = False
     self._font = pygame.font.Font(fontpath, fontsize)
     self._font.set_bold(True)

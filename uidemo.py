@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 import pitouch
-
+import timedisplay
 
 class App:
     def __init__(self):
@@ -17,15 +17,17 @@ class App:
         self._running = True
         self._default_fontpath = pygame.font.match_font("dejavusansmono")
 
-        self._display_surf.fill( pitouch.colors.BLACK )
+        self.background = pygame.Surface(self._display_surf.get_size())
+        self.background = self.background.convert()
+        self.background.fill( pitouch.colors.BLACK )
 
-        btn = pitouch.button.Button(rect=(10, 200, 300, 30), text="Quit", fontpath=self._default_fontpath, fontsize=12)
-        btn.subscribe(quit)
-        self._clickables.append(btn)
-        btn.draw()
+        self.btn = pitouch.button.Button(rect=(10, 200, 300, 30), text="Quit", fontpath=self._default_fontpath, fontsize=12, surface=self.background)
+        self.btn.subscribe(quit)
+        self._clickables.append(self.btn)
+        self.btn.draw()
 
-        title = pitouch.text.Text(content="Hello world!", fontpath=self._default_fontpath, alignment="c", bold=True)
-        title.draw()
+        self.title = pitouch.text.Text(content="Hello world!", fontpath=self._default_fontpath, alignment="c", bold=True, surface=self.background)
+        self.title.draw()
 
         bodytxt = """Oh freddled gruntbuggly,
 Thy micturations are to me
@@ -35,8 +37,10 @@ And hooptiously drangle me with crinkly bindlewurdles,
 Or I will rend thee in the gobberwarts
 With my blurglecruncheon, see if I don't!
 """
-        body = pitouch.text.Text(content=bodytxt, y=23, fontpath=self._default_fontpath, fontsize=10, alignment="l")
-        body.draw()
+        self.body = pitouch.text.Text(content=bodytxt, y=23, fontpath=self._default_fontpath, fontsize=10, alignment="l", surface=self.background)
+        self.body.draw()
+
+        self.timer = timedisplay.TimeDisplay(y=175, alignment="c", fontpath=self._default_fontpath, fontsize=12, surface=self.background)
 
  
     def on_event(self, event):
@@ -53,10 +57,11 @@ With my blurglecruncheon, see if I don't!
 
 
     def on_loop(self):
-        pass
+        self.timer.update()
 
     def on_render(self):
-        pygame.display.update()
+        self._display_surf.blit(self.background, (0, 0))
+        pygame.display.flip()
         
 
     def on_cleanup(self):
