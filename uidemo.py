@@ -3,16 +3,24 @@ from pygame.locals import *
 
 import pitouch
 import timedisplay
+import os
+import argparse
 
 class App:
-    def __init__(self):
+    def __init__(self, pitft=False):
         self._running = True
         self._display_surf = None
         self.size = self.weight, self.height = 320, 240
         self._clickables = []
- 
+        self._pitft = pitft
+
     def on_init(self):
+        if self._pitft:
+            os.putenv('SDL_FBDEV', '/dev/fb1')
         pygame.init()
+        if self._pitft:
+            pygame.mouse.set_visible(False)
+
         self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._running = True
         self._default_fontpath = pygame.font.match_font("dejavusansmono")
@@ -26,7 +34,7 @@ class App:
         self._clickables.append(self.btn)
         self.btn.draw()
 
-        self.title = pitouch.text.Text(content="Hello world!", fontpath=self._default_fontpath, alignment="c", bold=True, surface=self.background)
+        self.title = pitouch.text.Text(content="Hello world!", fontpath=self._default_fontpath, alignment="c", bold=True, surface=self.background, color=pygame.Color("antiquewhite"))
         self.title.draw()
 
         bodytxt = """Oh freddled gruntbuggly,
@@ -82,5 +90,14 @@ With my blurglecruncheon, see if I don't!
         self.on_cleanup()
  
 if __name__ == "__main__" :
-    theApp = App()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-p", "--pitft", help="uses PiTFT display", action="store_true")
+    args = vars(ap.parse_args())
+
+    if args['pitft']:
+        print "Using PiTFT"
+        theApp = App(pitft=True)
+    else:
+        print "Using window on main display"
+        theApp = App()
     theApp.on_execute()
